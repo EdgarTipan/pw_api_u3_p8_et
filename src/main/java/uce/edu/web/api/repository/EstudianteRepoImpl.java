@@ -27,4 +27,24 @@ public class EstudianteRepoImpl implements IEstudianteRepo {
         return myQuery.getResultList();
     }
 
+    @Override
+    public void actualizarPorId(Estudiante estudiante) {
+        this.entityManager.merge(estudiante);
+    }
+
+    @Override
+    public void actualizarParcialPorId(Estudiante estudiante) {
+        this.entityManager.merge(estudiante);
+    }
+
+    @Override
+    public void borrarPorId(Integer id) {
+        this.entityManager.remove(this.seleccionarPorId(id));
+    }
+
+    @Override
+    public void insertar(Estudiante estudiante) {
+        this.entityManager.persist(estudiante);
+    }
+
 }
