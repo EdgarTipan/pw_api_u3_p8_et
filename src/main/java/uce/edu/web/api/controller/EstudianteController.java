@@ -1,5 +1,8 @@
 package uce.edu.web.api.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
@@ -14,10 +17,14 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import uce.edu.web.api.repository.modelo.Estudiante;
+import uce.edu.web.api.repository.modelo.Hijo;
 import uce.edu.web.api.service.IEstudianteService;
+import uce.edu.web.api.service.to.EstudianteTo;
 
 @Path("/estudiantes")
 public class EstudianteController {
@@ -28,8 +35,9 @@ public class EstudianteController {
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response consultarPorId(@PathParam("id") Integer id) {
-        return Response.status(227).entity(this.estudianteService.buscarPorId(id)).build();
+    public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
+        EstudianteTo estu = this.estudianteService.buscarPorId(id,uriInfo);
+        return Response.status(227).entity(estu).build();
     }
 
     @GET
@@ -60,7 +68,7 @@ public class EstudianteController {
         return Response.status(Response.Status.OK).entity("Actualizado exitosamente").build();
     }
 
-    @PATCH
+/*     @PATCH
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -81,7 +89,7 @@ public class EstudianteController {
         }
         this.estudianteService.actualizarParcialPorId(e);
         return Response.status(Response.Status.OK).entity("Actualizacion parcial exitosa").build();
-    }
+    } */
 
     @DELETE
     @Path("/{id}")
@@ -89,6 +97,20 @@ public class EstudianteController {
     public Response borrarPorId(@PathParam("id") Integer id) {
         this.estudianteService.borrarPorId(id);
         return Response.status(Response.Status.OK).entity("Borrado exitosamente").build();
+    }
+
+    @GET
+    @Path("/{id}/hijos")
+    public List<Hijo> obtenerHijosPorId(@PathParam("id") Integer id) {
+        Hijo h1 = new Hijo();
+        h1.setNombre("Pepito");
+        Hijo h2 = new Hijo();
+        h2.setNombre("Juanito");
+
+        List<Hijo> hijos = new ArrayList<>();
+        hijos.add(h1);
+        hijos.add(h2);
+        return hijos;
     }
 
 }
