@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -24,6 +23,7 @@ import uce.edu.web.api.repository.modelo.Estudiante;
 import uce.edu.web.api.repository.modelo.Hijo;
 import uce.edu.web.api.service.IEstudianteService;
 import uce.edu.web.api.service.IHijoService;
+import uce.edu.web.api.service.mapper.EstudianteMapper;
 import uce.edu.web.api.service.to.EstudianteTo;
 
 @Path("/estudiantes")
@@ -39,7 +39,8 @@ public class EstudianteController {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
-        EstudianteTo estu = this.estudianteService.buscarPorId(id, uriInfo);
+        EstudianteTo estu = EstudianteMapper.toTo(this.estudianteService.buscarPorId(id));
+        estu.buildURI(uriInfo);
         return Response.status(227).entity(estu).build();
     }
 
