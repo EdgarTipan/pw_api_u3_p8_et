@@ -1,12 +1,14 @@
 package uce.edu.web.api.repository.modelo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,6 +31,9 @@ public class Profesor {
 
     @Column(name = "profe_sueldo")
     private Float sueldo;
+
+    @OneToMany(mappedBy = "profesor")
+    private List<Hijo> hijos;
 
     // Setters y Getters
 

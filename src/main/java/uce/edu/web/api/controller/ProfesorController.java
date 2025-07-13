@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -21,7 +22,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import uce.edu.web.api.repository.modelo.Hijo;
 import uce.edu.web.api.repository.modelo.Profesor;
+import uce.edu.web.api.service.IHijoService;
 import uce.edu.web.api.service.IProfesorService;
+import uce.edu.web.api.service.mapper.ProfesorMapper;
 import uce.edu.web.api.service.to.ProfesorTo;
 
 @Path("/profesores")
@@ -30,26 +33,38 @@ public class ProfesorController {
     @Inject
     private IProfesorService profesorService;
 
+    @Inject
+    private IHijoService hijoService;
+
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response consultarPorId(@PathParam("id") Integer id, @Context UriInfo uriInfo) {
-        ProfesorTo profe = this.profesorService.buscarPorId(id, uriInfo);
-        return Response.status(227).entity(profe).build();
+        ProfesorTo profeTo = ProfesorMapper.toTo(this.profesorService.buscarPorId(id));
+        profeTo.buildURI(uriInfo);
+        return Response.status(227).entity(profeTo).build();
     }
 
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response consultarTodos(@QueryParam("sueldo") Float sueldo) {
-        return Response.status(Response.Status.OK).entity(this.profesorService.buscarTodos(sueldo)).build();
+    public Response consultarTodos(@QueryParam("sueldo") Float sueldo, @Context UriInfo uriInfo) {
+        List<Profesor> listaProfe = this.profesorService.buscarTodos(sueldo);
+        List<ProfesorTo> listaProfeTo = new ArrayList<>();
+
+        for (Profesor p : listaProfe) {
+            ProfesorTo profeTo = ProfesorMapper.toTo(p);
+            profeTo.buildURI(uriInfo);
+            listaProfeTo.add(profeTo);
+        }
+        return Response.status(Response.Status.OK).entity(listaProfeTo).build();
     }
 
     @POST
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response guardar(@RequestBody Profesor profesor) {
-        this.profesorService.guardar(profesor);
+    public Response guardar(@RequestBody ProfesorTo profesorTo, @Context UriInfo uriInfo) {
+        this.profesorService.guardar(ProfesorMapper.toEntity(profesorTo));
         return Response.status(Response.Status.OK).entity("El profesor fue guardado exitosamente").build();
     }
 
@@ -57,41 +72,34 @@ public class ProfesorController {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response actualizarPorId(@RequestBody Profesor profesor, @PathParam("id") Integer id) {
-        profesor.setId(id);
-        this.profesorService.actualizarPorId(profesor);
+    public Response actualizarPorId(@RequestBody ProfesorTo profesorTo, @PathParam("id") Integer id) {
+        profesorTo.setId(id);
+        this.profesorService.actualizarPorId(ProfesorMapper.toEntity(profesorTo));
         return Response.status(Response.Status.OK).entity("Profesor actualizado exitosamente").build();
     }
 
-    /*
-     * @PATCH
-     * 
-     * @Path("/{id}")
-     * 
-     * @Produces(MediaType.APPLICATION_JSON)
-     * 
-     * @Consumes(MediaType.APPLICATION_JSON)
-     * public Response actualizarParcialPorId(@RequestBody Profesor
-     * profesor, @PathParam("id") Integer id) {
-     * profesor.setId(id);
-     * Profesor p = this.profesorService.buscarPorId(id);
-     * if (profesor.getApellido() != null) {
-     * p.setApellido(profesor.getApellido());
-     * }
-     * if (profesor.getNombre() != null) {
-     * p.setNombre(profesor.getNombre());
-     * }
-     * if (profesor.getFechaNacimiento() != null) {
-     * p.setFechaNacimiento(profesor.getFechaNacimiento());
-     * }
-     * if (profesor.getSueldo() != null) {
-     * p.setSueldo(profesor.getSueldo());
-     * }
-     * this.profesorService.actualizarParcialPorId(p);
-     * return Response.status(Response.Status.OK).
-     * entity("Profesor actualizado parcialmente exitosamente").build();
-     * }
-     */
+    @PATCH
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response actualizarParcialPorId(@RequestBody ProfesorTo profesor, @PathParam("id") Integer id) {
+        profesor.setId(id);
+        ProfesorTo p = ProfesorMapper.toTo(this.profesorService.buscarPorId(id));
+        if (profesor.getApellido() != null) {
+            p.setApellido(profesor.getApellido());
+        }
+        if (profesor.getNombre() != null) {
+            p.setNombre(profesor.getNombre());
+        }
+        if (profesor.getFechaNacimiento() != null) {
+            p.setFechaNacimiento(profesor.getFechaNacimiento());
+        }
+        if (profesor.getSueldo() != null) {
+            p.setSueldo(profesor.getSueldo());
+        }
+        this.profesorService.actualizarParcialPorId(ProfesorMapper.toEntity(p));
+        return Response.status(Response.Status.OK).entity("Profesor actualizado parcialmente exitosamente").build();
+    }
 
     @DELETE
     @Path("/{id}")
@@ -104,14 +112,6 @@ public class ProfesorController {
     @GET
     @Path("/{id}/hijos")
     public List<Hijo> obtenerHijosPorId(@PathParam("id") Integer id) {
-        Hijo h1 = new Hijo();
-        h1.setNombre("Pepito");
-        Hijo h2 = new Hijo();
-        h2.setNombre("Juanito");
-
-        List<Hijo> hijos = new ArrayList<>();
-        hijos.add(h1);
-        hijos.add(h2);
-        return hijos;
+        return hijoService.buscarPorProfesorID(id);
     }
 }

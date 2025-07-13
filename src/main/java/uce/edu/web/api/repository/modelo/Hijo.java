@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "Hijo")
 public class Hijo {
-    
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -29,6 +29,11 @@ public class Hijo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hijo_estudiante")
     private Estudiante estudiante;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "hijo_profesor")
+    private Profesor profesor;
 
     public Integer getId() {
         return id;

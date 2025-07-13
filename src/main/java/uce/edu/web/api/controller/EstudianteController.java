@@ -49,13 +49,14 @@ public class EstudianteController {
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
     public Response consultarTodos(@QueryParam("genero") String genero,
-            @QueryParam("provincia") String provincia) {
+            @QueryParam("provincia") String provincia, @Context UriInfo uriInfo) {
         System.out.println(provincia);
         List<Estudiante> listaEstu = this.estudianteService.buscarTodos(genero);
         List<EstudianteTo> listaEstuTo = new java.util.ArrayList<>();
+        
         for (Estudiante e : listaEstu) {
             EstudianteTo estuTo = EstudianteMapper.toTo(e);
-            // estuTo.buildURI(uriInfo);
+            estuTo.buildURI(uriInfo);
             listaEstuTo.add(estuTo);
         }
         return Response.status(Response.Status.OK).entity(listaEstuTo).build();

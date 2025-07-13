@@ -8,14 +8,19 @@ import uce.edu.web.api.repository.IHijoRepo;
 import uce.edu.web.api.repository.modelo.Hijo;
 
 @ApplicationScoped
-public class HijoServiceImpl implements IHijoService{
+public class HijoServiceImpl implements IHijoService {
 
     @Inject
     private IHijoRepo hijoRepo;
 
     @Override
     public List<Hijo> buscarPorEstudianteID(Integer id) {
-        return hijoRepo.buscarPorEstudianteID(id);
+        return this.hijoRepo.buscarPorEstudianteID(id);
+    }
+
+    @Override
+    public List<Hijo> buscarPorProfesorID(Integer id) {
+        return this.hijoRepo.buscarPorProfesorID(id);
     }
 
 }
