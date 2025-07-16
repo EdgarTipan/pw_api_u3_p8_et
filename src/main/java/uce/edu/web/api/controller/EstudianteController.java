@@ -1,6 +1,7 @@
 package uce.edu.web.api.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
@@ -20,7 +21,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-import uce.edu.web.api.repository.modelo.Estudiante;
 import uce.edu.web.api.repository.modelo.Hijo;
 import uce.edu.web.api.service.IEstudianteService;
 import uce.edu.web.api.service.IHijoService;
@@ -51,14 +51,8 @@ public class EstudianteController {
     public Response consultarTodos(@QueryParam("genero") String genero,
             @QueryParam("provincia") String provincia, @Context UriInfo uriInfo) {
         System.out.println(provincia);
-        List<Estudiante> listaEstu = this.estudianteService.buscarTodos(genero);
-        List<EstudianteTo> listaEstuTo = new java.util.ArrayList<>();
-        
-        for (Estudiante e : listaEstu) {
-            EstudianteTo estuTo = EstudianteMapper.toTo(e);
-            estuTo.buildURI(uriInfo);
-            listaEstuTo.add(estuTo);
-        }
+        List<EstudianteTo> listaEstuTo = this.estudianteService.buscarTodos(genero).stream().map(EstudianteMapper::toTo)
+                .collect(Collectors.toList());
         return Response.status(Response.Status.OK).entity(listaEstuTo).build();
     }
 
